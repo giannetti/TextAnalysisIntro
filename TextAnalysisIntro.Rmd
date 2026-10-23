@@ -1,6 +1,6 @@
 ---
 title: "Intro to Quantitative Textual Analysis"
-author: "[Alex Leslie](https://english.rutgers.edu/cb-profile/ahl80.html)"
+author: "Alex Leslie"
 date: "2/7/2020"
 output:
   pdf_document:
@@ -11,6 +11,16 @@ urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
+if (!(require("knitr"))) {
+  install.packages("knitr")
+}
+if (!(require("rmarkdown"))) {
+  install.packages("rmarkdown")
+}
+
+library(knitr)
+library(rmarkdown)
+
 knitr::opts_chunk$set(echo = TRUE)
 if (!(require(dplyr))) {
   install.packages("dplyr")
@@ -78,7 +88,7 @@ which(gutenberg_file=="CHAPTER I")
 
 What is this number? It's the position in the gutenberg_file vector of the elements (in this case just one) containing the character string "CHAPTER I". 
 
-We can test this by *indexing* the gutenberg_file vector using brackets, `[]`, to select only the element(s) in the desired position(s). Indexing is one of the most useful and versitile tools in R, so you'll encounter it frequently today: it simply designates a subset of whichever object you're working with. For example:
+We can test this by *indexing* the gutenberg_file vector using brackets, `[]`, to select only the element(s) in the desired position(s). Indexing is one of the most useful and versatile tools in R, so you'll encounter it frequently today: it simply designates a subset of whichever object you're working with. For example:
 ```{r}
 gutenberg_file[164]
 ```
@@ -159,10 +169,10 @@ To do so, we'll need to save top_words as a `data.frame` instead. A *data frame*
 word_df <- data.frame(word=top_words)
 ```
 
-Next, we'll use the piping operator `%>%`, which simply funnels the results of one function directly into the next, making our code clearer and more concise. This allows us to take our new word_df data frame, `group_by` word, and `summarize` the number of observations in each group (i.e., the number of occurences for each word) as a new variable called total. 
+Next, we'll use the piping operator ` |> `, which simply funnels the results of one function directly into the next, making our code clearer and more concise. This allows us to take our new word_df data frame, `group_by` word, and `summarize` the number of observations in each group (i.e., the number of occurrences for each word) as a new variable called total. 
 ```{r}
-word_df <- word_df %>% 
-  group_by(word) %>% 
+word_df <- word_df |> 
+  group_by(word) |> 
   summarize(total=n())
 ```
 
@@ -286,7 +296,7 @@ Each observation - or row - here corresponds to a single word, as we can see fro
 
 Using the "nrc" lexicon, we can identify all the words in our text that are associated with a particular sentiment. I've chosen fear, but you can pick whichever sentiment you'd like: if you do, make sure to change all the instances of the word "fear" in the next couple blocks of code (you can use ctrl+f to find them).
 ```{r}
-fear <- get_sentiments("nrc") %>% 
+fear <- get_sentiments("nrc") |> 
   filter(sentiment=="fear")
 
 fear_words <- word_vector[which(word_vector %in% fear$word)]
@@ -295,9 +305,9 @@ sort(table(fear_words), decreasing=TRUE)[1:20]
 
 Part of the utility of using R is that we can easily translate this into graph form. To do so we'll again use the piping operator `%>%` to turn our fear_words vector into a data frame and once again `summarize` the total number of observations for each word.
 ```{r}
-fear_df <- data.frame(fear_words) %>%
-  group_by(fear_words) %>%
-  summarize(total=n()) %>%
+fear_df <- data.frame(fear_words) |> 
+  group_by(fear_words) |> 
+  summarize(total=n()) |> 
   arrange(desc(total))
 
 ggplot(data=fear_df[1:10,], aes(x=reorder(fear_words, total), y=total)) +
@@ -319,9 +329,9 @@ text_positivity <- inner_join(word_df, get_sentiments("bing"), by="word")
 
 This next bit of code relies on a number of new functions, so don't worry if it just seems hazy. First we `count` the number of observations of each sentiment in each group of 1000 words in our original word_vector, which reorganizes the data frame so that each observation is one sentiment from one group rather than one individual word. Then we `spread` the sentiment variable so that each of its two possible values, positive and negative, is its own variable whose value is the total number (`n`) of words associated with it in that 1000-word group. Finally, we `mutate` to add a new variable, sentiment_quant, which simply subtracts the difference between the value in the positive variable and the value in the negative variable.
 ```{r}
-sentiment_plot <- text_positivity %>%
-  count(index = word_position %/% 1000, sentiment) %>%
-  spread(sentiment, n, fill = 0) %>%
+sentiment_plot <- text_positivity |> 
+  count(index = word_position %/% 1000, sentiment) |> 
+  pivot_wider(names_from = sentiment, values_from = n) |>
   mutate(sentiment_quant = positive - negative)
 
 sentiment_plot %>%
@@ -337,8 +347,6 @@ Now this gives us a lot to chew over. In the case of *The Grandissimes*, we have
 Of course, sentiment analysis is only as useful as the lexicon being used, and a lexicon that may be particularly useful for one text might not be for another text. To check this, we might want to do a bit of spot checking to see that sentiments are being assigned in a way that we deem appropriate. We might also want to compare different sentiment lexicons: for example, we could make a second version of this same graph that instead uses the "afinn" lexicon and compare the results. This kind of self-review is essential when working with quantitative methods.
 
 There's a bigger moral here too: that quantitative analysis should always be in dialogue with other qualitative forms of analysis. The benefits of quantitative analysis lie in its ability to articulate aspects of texts that can often be more precise or succinct than qualitative analysis and to direct our attention to further areas for qualitative analysis that we might've overlooked.
-
-Finally, we would really appreciate it if you took a minute to [fill out our brief feedback survey](http://bit.ly/2019_dh-feedback).
 
 If you'd like to look at this workshop in more detail or run the code yourself, visit https://github.com/azleslie/TextAnalysisIntro. If you want to try it out on a different text, simply save that text as a .txt file and save it into the sample_texts directory.
 

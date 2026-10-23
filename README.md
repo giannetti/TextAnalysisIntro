@@ -3,6 +3,8 @@ These materials form a beginner workshop on the basics of quantitative textual a
 
 This workshop was originally offered during the Fall 2018 semester and again in Spring 2019 and Spring 2020 at Rutgers University-New Brunswick through the [New Brunswick Libraries Graduate Specialists program](https://libguides.rutgers.edu/graduatespecialist/) and the [Rutgers DH Initiative](http://dh.rutgers.edu/).
 
+Francesca updated this file to use in Joe Larios's comparative literature proseminar in Fall 2026.
+
 ## File Guide
 **TextAnalysisIntro.Rmd** Master .Rmd file for user participation in the workshop, to run or edit code as desired; used to generate .pdf file.
 
